@@ -1,0 +1,29 @@
+name: deploying nginx
+
+on: 
+ push:
+  branches:
+    - main
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with: 
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Nginx Server
+        run: |
+          ssh -o StrictHostKeyChecking=no sigmoid@172.29.168.191 << 'EOF'
+          echo '<h1>Hello World Welcome</h1>' | sudo tee /var/www/html/index.html
+          sudo systemctl restart nginx
+          EOF
+
+          
