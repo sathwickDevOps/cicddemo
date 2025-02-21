@@ -1,10 +1,9 @@
-name: deploying nginx
+name: Deploy to Nginx
 
-on: 
- push:
-  branches:
-    - main
-
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -15,9 +14,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with: 
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 
       - name: Deploy to Nginx Server
         run: |
@@ -25,5 +26,3 @@ jobs:
           echo '<h1>Hello World Welcome</h1>' | sudo tee /var/www/html/index.html
           sudo systemctl restart nginx
           EOF
-
-          
